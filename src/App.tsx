@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useRef} from 'react'
 import clsx from 'clsx'
 
 import Card from '@material-ui/core/Card'
@@ -15,6 +15,7 @@ import Tab from '@material-ui/core/Tab'
 import Box from '@material-ui/core/Box'
 import {Button, makeStyles, TextField, Theme, withStyles} from "@material-ui/core"
 import LinearProgress, {LinearProgressProps} from '@material-ui/core/LinearProgress'
+import CircularProgress, {CircularProgressProps} from '@material-ui/core/CircularProgress';
 
 import './App.css'
 
@@ -99,6 +100,11 @@ const useStyles = makeStyles((theme: Theme) => ({
         position: 'absolute',
         left: 15,
         top: 15
+    },
+    progressRound: {
+        position: 'absolute',
+        right: 15,
+        top: 50
     }
 }));
 
@@ -145,7 +151,35 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
     );
 }
 
+function CircularProgressWithLabel(props: CircularProgressProps & { value: number }) {
+    return (
+        <Box position="relative" display="inline-flex">
+            <CircularProgress variant="determinate" {...props} />
+            <Box
+                top={0}
+                left={0}
+                bottom={0}
+                right={0}
+                position="absolute"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+                <Typography
+                    variant="caption"
+                    component="div"
+                    color="textSecondary"
+                >
+                    {`${Math.round(props.value,)}сек`}
+                </Typography>
+            </Box>
+        </Box>
+    );
+}
+
 function App() {
+
+    const resInput = useRef(null)
 
     const classes = useStyles();
 
@@ -155,48 +189,69 @@ function App() {
 
     const [num1, setNum1] = React.useState<number>(0);
     const [num2, setNum2] = React.useState<number>(0);
-    const [result, setResult] = React.useState<number>(0);
+    const [result, setResult] = React.useState<number | string>('');
     const [progress, setProgress] = React.useState<number>(0);
-    const [limit, setLimit] = React.useState<number>(9);
+    const [progress_round, setProgressRound] = React.useState(100);
+    const [limit, setLimit] = React.useState<number | string>(9);
     const [disable, setDisable] = React.useState<boolean>(false);
     const [show_message, showMessage] = React.useState<boolean>(false);
+    const [remove, setRemove] = React.useState<any>({remove: false, count: 100});
 
 
     const mathRound = (num: number, nm: number) => {
         return Math.round(num * nm) / nm;
     }
 
-    const randomInteger = (max: number = 9, min: number = 1) => {
-        let rand = min + Math.random() * (max + 1 - min);
+    const randomInteger = (max: number | string = 9, min: number = 1) => {
+        let rand;
+        if (max === '') rand = min + Math.random() * (9 + 1 - min)
+        else rand = min + Math.random() * ((Number(max) + 1) - min)
         return Math.floor(rand);
     }
 
 
     const genNumbers = () => {
 
-        let LS: any = localStorage.getItem('progress')
-
-        if(LS) {
-            let data: any = JSON.parse(LS)
-            data.count = data.count + 1
-            localStorage.setItem('progress',JSON.stringify(data))
-        }
+        // startTimer()
 
         setDisable(true)
         showMessage(false)
-        setNum1(randomInteger());
+
+        let LS: any = localStorage.getItem('progress')
+        let num = randomInteger(limit)
+
+        if (LS) {
+            let data: any = JSON.parse(LS)
+            data.count = data.count + 1
+            localStorage.setItem('progress', JSON.stringify(data))
+        }
+
+        if (num === 1 || num === 2 || num === 3) {
+            num = randomInteger(9, 3)
+        }
+
+        setNum1(num);
         setNum2(randomInteger(limit));
-        setResult(0)
+        setResult('')
     }
 
 
     const checkResult = () => {
 
+        if(result === '') {
+            let obj: any = resInput.current
+            if(obj) {
+                obj.querySelector('input').focus()
+            }
+            return
+        }
+
         let data: any, LS: any = localStorage.getItem('progress')
 
-        if(LS) data = JSON.parse(LS)
+        if (LS) data = JSON.parse(LS)
 
         setDisable(false)
+
         if ((num1 * num2) === result) {
             setText('Правильно!')
             setColor('lime')
@@ -206,14 +261,14 @@ function App() {
             setColor('red')
             data.false = data.false + 1
         }
-        localStorage.setItem('progress',JSON.stringify(data))
+        localStorage.setItem('progress', JSON.stringify(data))
         calcProgress(data)
     }
 
 
     const calcProgress = (data: any) => {
         let res: number = (data.true / data.count) * 100
-        setProgress(mathRound(res,1))
+        setProgress(mathRound(res, 1))
     };
 
 
@@ -223,36 +278,56 @@ function App() {
 
 
     const handleChangeResult = (evt: any) => {
-        setResult(Number(evt.target.value));
+        if (!isNaN(Number(evt.target.value))) setResult(Number(evt.target.value))
     };
 
 
     const handleLimit = (evt: any) => {
-        setLimit(Number(evt.target.value));
+        let val = '0'
+        val = evt.target.value.length === 2 ? evt.target.value[1] : evt.target.value
+        setLimit(Number(val));
     };
+
+
+    // const startTimer = () => {
+    //
+    //     const timer = setInterval(() => {
+    //         setProgressRound((prevProgress) => {
+    //             if(prevProgress === 0) {
+    //                 clearInterval(timer);
+    //                 setRemove({remove: true, count: 100})
+    //                 checkResult()
+    //                 return 0
+    //             }
+    //             else return prevProgress - 1
+    //         })
+    //     }, 100);
+    //     return () => {
+    //         clearInterval(timer);
+    //     };
+    //
+    // };
 
 
     useEffect(() => {
         let LS: any = localStorage.getItem('progress')
-        if(!LS) {
-            localStorage.setItem('progress',JSON.stringify({count: 0, true: 0, false: 0}))
+        if (!LS) {
+            localStorage.setItem('progress', JSON.stringify({count: 0, true: 0, false: 0}))
             setProgress(0);
-        }
-        else {
+        } else {
             let data: any = JSON.parse(LS)
             calcProgress(data)
         }
-    },[])
+    }, [])
 
 
     useEffect(() => {
-        if (result !== 0) showMessage(true)
+        if(result !== 0 && result !== '') showMessage(true)
     }, [disable])
 
     return (
         <div className="App">
             <Card className="wrapper">
-
 
                 <Zoom in={show_message}>
                     <div
@@ -273,6 +348,14 @@ function App() {
                     <Tab label="Таблица умножения" className={classes.tab}/>
                 </Tabs>
                 <CardContent>
+
+                    {
+                        remove.remove &&
+                            <div className={classes.progressRound}>
+                                <CircularProgressWithLabel value={progress_round} />
+                            </div>
+                    }
+
                     <Typography
                         variant="body2"
                         color="textSecondary"
@@ -291,7 +374,7 @@ function App() {
                             onChange={handleLimit}
                             InputProps={{
                                 inputProps: {
-                                    maxLength: 1
+                                    maxLength: 2
                                 },
                             }}
                         />
@@ -337,6 +420,7 @@ function App() {
                         <CssTextField
                             // error={errorEmail}
                             // helperText={helperEmail}
+                            ref={resInput}
                             name="email"
                             type="text"
                             value={result}
