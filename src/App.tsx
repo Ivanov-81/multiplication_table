@@ -184,7 +184,7 @@ function App() {
 
         setDisable(true)
         showMessage(false)
-        setNum1(randomInteger(limit));
+        setNum1(randomInteger());
         setNum2(randomInteger(limit));
         setResult(0)
     }
