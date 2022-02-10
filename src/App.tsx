@@ -13,7 +13,7 @@ import ShareIcon from '@material-ui/icons/Share'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import Box from '@material-ui/core/Box'
-import {Button, makeStyles, TextField, Theme, withStyles} from "@material-ui/core"
+import {Button, makeStyles, Slide, TextField, Theme, withStyles} from "@material-ui/core"
 import LinearProgress, {LinearProgressProps} from '@material-ui/core/LinearProgress'
 import CircularProgress, {CircularProgressProps} from '@material-ui/core/CircularProgress';
 
@@ -183,7 +183,7 @@ function App() {
 
     const classes = useStyles();
 
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = React.useState(1);
     const [text, setText] = React.useState('Правильно');
     const [color, setColor] = React.useState('lime');
 
@@ -196,6 +196,11 @@ function App() {
     const [disable, setDisable] = React.useState<boolean>(false);
     const [show_message, showMessage] = React.useState<boolean>(false);
     const [remove, setRemove] = React.useState<any>({remove: false, count: 100});
+
+    const [animations, setAnimations] = React.useState<any>({
+        0: {state: true, direction: "left"},
+        1: {state: false, direction: "right"}
+    });
 
 
     const mathRound = (num: number, nm: number) => {
@@ -273,6 +278,19 @@ function App() {
 
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+        console.log(newValue);
+        for (let anim in animations) {
+            console.log(anim);
+            console.log(animations[anim]);
+            // @ts-ignore
+            if(anim === newValue) {
+
+            }
+            else {
+
+            }
+
+        }
         setValue(newValue);
     };
 
@@ -287,6 +305,13 @@ function App() {
         val = evt.target.value.length === 2 ? evt.target.value[1] : evt.target.value
         setLimit(Number(val));
     };
+
+    function a11yProps(index: number) {
+        return {
+            id: `full-width-tab-${index}`,
+            'aria-controls': `full-width-tabpanel-${index}`,
+        };
+    }
 
 
     // const startTimer = () => {
@@ -345,126 +370,178 @@ function App() {
                     onChange={handleChange}
                     aria-label="disabled tabs example"
                 >
-                    <Tab label="Таблица умножения" className={classes.tab}/>
-                    <Tab label="Падежи" className={classes.tab}/>
+                    <Tab label="Таблица умножения" className={classes.tab} {...a11yProps(0)}/>
+                    <Tab label="Падежи" className={classes.tab} {...a11yProps(1)}/>
                 </Tabs>
-                <CardContent>
 
-                    {
-                        remove.remove &&
-                            <div className={classes.progressRound}>
-                                <CircularProgressWithLabel value={progress_round} />
-                            </div>
-                    }
+                <Slide direction={animations[0].direction} in={animations[0].state} mountOnEnter unmountOnExit>
+                    <CardContent>
 
-                    <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        component="section"
-                        className={classes.calc}
-                    >
-                        <CssTextField
-                            // error={errorEmail}
-                            // helperText={helperEmail}
-                            name="email"
-                            type="text"
-                            value={limit}
-                            className={clsx(classes.input, classes.limit)}
-                            margin="normal"
-                            variant="outlined"
-                            onChange={handleLimit}
-                            InputProps={{
-                                inputProps: {
-                                    maxLength: 2
-                                },
-                            }}
-                        />
+                        {
+                            remove.remove &&
+							<div className={classes.progressRound}>
+								<CircularProgressWithLabel value={progress_round} />
+							</div>
+                        }
 
-                        <CssTextField
-                            // error={errorEmail}
-                            // helperText={helperEmail}
-                            name="email"
-                            type="text"
-                            value={num1}
-                            className={clsx(classes.input)}
-                            margin="normal"
-                            variant="outlined"
-                            InputProps={{
-                                inputProps: {
-                                    maxLength: 1,
-                                    readOnly: true
-                                },
-                            }}
-                        />
-
-                        <span className={classes.multiplication}>*</span>
-
-                        <CssTextField
-                            // error={errorEmail}
-                            // helperText={helperEmail}
-                            name="email"
-                            type="text"
-                            value={num2}
-                            className={clsx(classes.input)}
-                            margin="normal"
-                            variant="outlined"
-                            InputProps={{
-                                inputProps: {
-                                    maxLength: 1,
-                                    readOnly: true
-                                },
-                            }}
-                        />
-
-                        <span className={classes.equally}>=</span>
-
-                        <CssTextField
-                            // error={errorEmail}
-                            // helperText={helperEmail}
-                            ref={resInput}
-                            name="email"
-                            type="text"
-                            value={result}
-                            className={clsx(classes.input)}
-                            margin="normal"
-                            variant="outlined"
-                            onChange={handleChangeResult}
-                            InputProps={{
-                                inputProps: {
-                                    maxLength: 2
-                                },
-                            }}
-                        />
-
-                    </Typography>
-
-                    <div className={classes.buttons}>
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={genNumbers}
-                            disabled={disable}
+                        <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            component="section"
+                            className={classes.calc}
                         >
-                            Новый пример
-                        </Button>
+                            <CssTextField
+                                // error={errorEmail}
+                                // helperText={helperEmail}
+                                name="email"
+                                type="text"
+                                value={limit}
+                                className={clsx(classes.input, classes.limit)}
+                                margin="normal"
+                                variant="outlined"
+                                onChange={handleLimit}
+                                InputProps={{
+                                    inputProps: {
+                                        maxLength: 2
+                                    },
+                                }}
+                            />
 
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={checkResult}
-                            disabled={!disable}
-                        >
-                            Проверить
-                        </Button>
+                            <CssTextField
+                                // error={errorEmail}
+                                // helperText={helperEmail}
+                                name="email"
+                                type="text"
+                                value={num1}
+                                className={clsx(classes.input)}
+                                margin="normal"
+                                variant="outlined"
+                                InputProps={{
+                                    inputProps: {
+                                        maxLength: 1,
+                                        readOnly: true
+                                    },
+                                }}
+                            />
 
-                    </div>
+                            <span className={classes.multiplication}>*</span>
 
-                    <div className={classes.progress}>
-                        <LinearProgressWithLabel value={progress}/>
-                    </div>
+                            <CssTextField
+                                // error={errorEmail}
+                                // helperText={helperEmail}
+                                name="email"
+                                type="text"
+                                value={num2}
+                                className={clsx(classes.input)}
+                                margin="normal"
+                                variant="outlined"
+                                InputProps={{
+                                    inputProps: {
+                                        maxLength: 1,
+                                        readOnly: true
+                                    },
+                                }}
+                            />
 
-                </CardContent>
+                            <span className={classes.equally}>=</span>
+
+                            <CssTextField
+                                // error={errorEmail}
+                                // helperText={helperEmail}
+                                ref={resInput}
+                                name="email"
+                                type="text"
+                                value={result}
+                                className={clsx(classes.input)}
+                                margin="normal"
+                                variant="outlined"
+                                onChange={handleChangeResult}
+                                InputProps={{
+                                    inputProps: {
+                                        maxLength: 2
+                                    },
+                                }}
+                            />
+
+                        </Typography>
+
+                        <div className={classes.buttons}>
+
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={genNumbers}
+                                disabled={disable}
+                            >
+                                Новый пример
+                            </Button>
+
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={checkResult}
+                                disabled={!disable}
+                            >
+                                Проверить
+                            </Button>
+
+                        </div>
+
+                        <div className={classes.progress}>
+                            <LinearProgressWithLabel value={progress}/>
+                        </div>
+
+                    </CardContent>
+                </Slide>
+
+                {/*<Slide direction={animations[1].direction} in={animations[1].state} mountOnEnter unmountOnExit>*/}
+                {/*    <CardContent>*/}
+
+                {/*        {*/}
+                {/*            remove.remove &&*/}
+				{/*			<div className={classes.progressRound}>*/}
+				{/*				<CircularProgressWithLabel value={progress_round} />*/}
+				{/*			</div>*/}
+                {/*        }*/}
+
+                {/*        <Typography*/}
+                {/*            variant="body2"*/}
+                {/*            color="textSecondary"*/}
+                {/*            component="section"*/}
+                {/*            className={classes.calc}*/}
+                {/*        >*/}
+
+                {/*        </Typography>*/}
+
+                {/*        <div className={classes.buttons}>*/}
+
+                {/*            <Button*/}
+                {/*                variant="contained"*/}
+                {/*                color="primary"*/}
+                {/*                onClick={genNumbers}*/}
+                {/*                disabled={disable}*/}
+                {/*            >*/}
+                {/*                Новый пример*/}
+                {/*            </Button>*/}
+
+                {/*            <Button*/}
+                {/*                variant="contained"*/}
+                {/*                color="primary"*/}
+                {/*                onClick={checkResult}*/}
+                {/*                disabled={!disable}*/}
+                {/*            >*/}
+                {/*                Проверить*/}
+                {/*            </Button>*/}
+
+                {/*        </div>*/}
+
+                {/*        <div className={classes.progress}>*/}
+                {/*            <LinearProgressWithLabel value={progress}/>*/}
+                {/*        </div>*/}
+
+                {/*    </CardContent>*/}
+                {/*</Slide>*/}
+
                 <CardActions disableSpacing>
                     <IconButton aria-label="add to favorites">
                         <FavoriteIcon/>
