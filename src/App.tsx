@@ -279,16 +279,19 @@ function App() {
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         console.log(newValue);
-        for (let anim in animations) {
-            console.log(anim);
-            console.log(animations[anim]);
+        let obj = animations
+        for (let anim in obj) {
             // @ts-ignore
             if(anim === newValue) {
-
+                obj[anim].state = true;
+                obj[anim].directive = 'left';
             }
             else {
-
+                obj[anim].state = false;
+                obj[anim].directive = 'right';
             }
+            console.log(obj)
+            setAnimations(obj);
 
         }
         setValue(newValue);
@@ -370,8 +373,8 @@ function App() {
                     onChange={handleChange}
                     aria-label="disabled tabs example"
                 >
-                    <Tab label="Таблица умножения" className={classes.tab} {...a11yProps(0)}/>
-                    <Tab label="Падежи" className={classes.tab} {...a11yProps(1)}/>
+                    <Tab label="Таблица умножения" className={classes.tab}/>
+                    <Tab label="Падежи" className={classes.tab}/>
                 </Tabs>
 
                 <Slide direction={animations[0].direction} in={animations[0].state} mountOnEnter unmountOnExit>
