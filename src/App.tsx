@@ -346,6 +346,7 @@ function App() {
                     aria-label="disabled tabs example"
                 >
                     <Tab label="Таблица умножения" className={classes.tab}/>
+                    <Tab label="Падежи" className={classes.tab}/>
                 </Tabs>
                 <CardContent>
 
